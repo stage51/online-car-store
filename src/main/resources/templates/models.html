@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Models</title>
+</head>
+<body>
+
+<h2>All Models</h2>
+
+<table border="1">
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Category</th>
+    <th>Start Year</th>
+    <th>End Year</th>
+    <th>Brand</th>
+    <th>Image</th>
+    <th>Action</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="model : ${models}">
+    <td th:text="${model.id}"></td>
+    <td th:text="${model.name}"></td>
+    <td th:text="${model.category.name()}"></td>
+    <td th:text="${model.startYear}"></td>
+    <td th:text="${model.endYear}"></td>
+    <td th:text="${model.brand.name}"></td>
+    <td><img th:src="@{/images/{url}(url=${model.imageUrl})}" alt="" style="width:200px; height:auto;"></td>
+    <td>
+      <a th:href="@{/models/edit/{id}(id=${model.id})}">Edit</a>
+      |
+      <form th:action="@{/models/delete/{id}(id=${model.id})}" th:method="delete">
+        <button th:type="submit">Delete</button>
+      </form>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+<br/>
+<a th:href="@{/models/create}">Create New Model</a>
+<a th:href="@{/}">Back To Menu</a>
+</body>
+</html>

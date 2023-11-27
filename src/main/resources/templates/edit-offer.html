@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Offer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+<body data-bs-theme="dark">
+<div th:replace="~{fragments/header}"></div>
+<section>
+  <div class="container">
+      <div class="py-5 text-center">
+        <h2>Изменить объявление</h2>
+        <p class="lead">Заполните формы</p>
+      </div>
+    <div th:if="${errors}" class="alert alert-danger">
+      <ul class="mb-0">
+        <li th:each="error : ${errors}" th:text="${error.defaultMessage}"></li>
+      </ul>
+    </div>
+      <div class="row g-5">
+        <div class="col-md-5 col-lg-4 order-md-last">
+          <div th:replace="~{fragments/car}"></div>
+        </div>
+        <div class="col-md-7 col-lg-8">
+          <h4 class="mb-3">Информация</h4>
+          <form th:action="@{/offers/edit}" method="post" th:object="${offer}" enctype="multipart/form-data">
+            <div class="mb-3">
+              <input type="hidden" th:field="*{id}" />
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Описание</label>
+              <input type="text" id="description" name="description" class="form-control" th:field="*{description}" required />
+            </div>
+
+            <div class="mb-3">
+              <label for="file" class="form-label">Изображение</label>
+              <input type="file" id="file" name="file" class="form-control" th:object="${file}" required/>
+            </div>
+
+            <div class="mb-3">
+              <label for="engine" class="form-label">Тип двигателя</label>
+              <select id="engine" name="engine" class="form-select" th:field="*{engine}" required>
+                <option th:each="engine : ${engines}" th:value="${engine.name()}" th:text="${engine.name()}"></option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="mileage" class="form-label">Пробег</label>
+              <input type="number" id="mileage" name="mileage" class="form-control" th:field="*{mileage}" required />
+            </div>
+
+            <div class="mb-3">
+              <label for="price" class="form-label">Цена</label>
+              <input type="number" id="price" name="price" class="form-control" th:field="*{price}" required />
+            </div>
+
+            <div class="mb-3">
+              <label for="transmission" class="form-label">Коробка передач</label>
+              <select id="transmission" name="transmission" class="form-select" th:field="*{transmission}" required>
+                <option th:each="transmission : ${transmissions}" th:value="${transmission.name()}" th:text="${transmission.name()}"></option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="year" class="form-label">Год выпуска</label>
+              <input type="number" id="year" name="year" class="form-control" th:field="*{year}" required />
+            </div>
+
+            <div class="mb-3">
+              <label for="model" class="form-label">Модель</label>
+              <select id="model" name="model" class="form-select" th:field="*{model.id}">
+                <option th:each="model : ${models}" th:value="${model.id}" th:text="${model.brand.name} + ' ' + ${model.name}"></option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+              <button type="submit" class="btn btn-warning">Сохранить</button>
+            </div>
+          </form>
+        </div>
+      </div>
+  </div>
+</section>
+<div th:replace="~{fragments/footer}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>
+

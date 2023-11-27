@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Offers</title>
+</head>
+<body>
+
+<h2>All Offers</h2>
+
+<table border="1">
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Description</th>
+    <th>Engine</th>
+    <th>Mileage</th>
+    <th>Price</th>
+    <th>Transmission</th>
+    <th>Year</th>
+    <th>Model</th>
+    <th>Seller</th>
+    <th>Image</th>
+    <th>Action</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="offer : ${offers}">
+    <td th:text="${offer.id}"></td>
+    <td th:text="${offer.description}"></td>
+    <td th:text="${offer.engine.name()}"></td>
+    <td th:text="${offer.mileage}"></td>
+    <td th:text="${offer.price}"></td>
+    <td th:text="${offer.transmission.name()}"></td>
+    <td th:text="${offer.year}"></td>
+    <td th:text="${offer.model.name}"></td>
+    <td>
+      <a th:href="@{/user/{id}(id=${offer.seller.id})}" th:text="${offer.seller.username}"></a>
+    </td>
+    <td><img th:src="@{/images/{url}(url=${offer.imageUrl})}" alt="" style="width:200px; height:auto;"></td>
+    <td th:if="${offer.seller.id} == ${currentUser.id}">
+      <a th:href="@{/offers/edit/{id}(id=${offer.id})}">Edit</a>
+      |
+      <form th:action="@{/offers/delete/{id}(id=${offer.id})}" th:method="delete">
+        <button th:type="submit">Delete</button>
+      </form>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+<br/>
+<a th:href="@{/offers/create}">Create New Offer</a>
+<a th:href="@{/}">Back To Menu</a>
+</body>
+</html>

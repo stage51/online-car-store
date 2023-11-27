@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <title>All Offers</title>
+</head>
+<body data-bs-theme="dark">
+<div th:replace="~{fragments/header}"></div>
+<section>
+  <div class="container">
+    <div class="container d-flex justify-content-between align-items-center py-4">
+      <h1 th:text="${seller == null} ? 'Объявления' : 'Объявления пользователя'" class="text-body-emphasis text-dark">Объявления</h1>
+      <a th:href="@{/offers/create}" class="btn btn-outline-warning">Создать</a>
+    </div>
+    <div th:if="${offers.getNumberOfElements() != 0}" class="row gap-3 justify-content-start d-flex">
+      <div th:each="offer : ${offers}" class="card" style="width: 18rem;">
+        <img th:src="@{/images/{url}(url=${offer.imageUrl})}" class="card-img-top w-100 h-100" alt="..." style="object-fit: cover;">
+        <div class="card-body">
+          <h5 th:text="${offer.model.brand.name} + ' ' + ${offer.model.name}" class="card-title">title</h5>
+          <p th:text="${offer.description}" class="card-text">description</p>
+          <p th:text="${offer.price} + ' RUB'" class="card-text fs-3 text-danger">price</p>
+          <div class="row d-flex justify-content-center">
+            <a th:href="@{/offers/{id}(id=${offer.id})}" class="btn btn-warning col-5">Подробно</a>
+            <a th:if="${offer.seller.id == currentUser.id or currentUser.userRole.role.ordinal() == 1}" th:href="@{/offers/edit/{id}(id=${offer.id})}" class="btn btn-outline-warning col-5 ms-2">Изменить</a>
+          </div>
+          <small class="text-body-secondary d-flex mt-3 justify-content-center">
+            <p class="mb-0 me-1">Продавец: </p>
+            <a th:href="@{/user/{id}(id=${offer.seller.id})}" th:text="${offer.seller.username}" class="text-warning">seller</a>
+          </small>
+        </div>
+      </div>
+    </div>
+    <div th:unless="${offers.getNumberOfElements() != 0}" class="my-5">
+      <div class="p-5 text-center">
+        <div class="container py-5">
+          <h1 class="text-body-emphasis text-dark d-flex justify-content-center"><p class="text-warning md-0 me-2">Упс...</p>Здесь ничего нет!</h1>
+          <p class="col-lg-8 mx-auto lead">
+            На этой странице нет объявлений.
+          </p>
+        </div>
+      </div>
+    </div>
+    <nav class="mt-5">
+      <ul class="pagination justify-content-center d-flex">
+        <li th:class="${page > 1} ? 'page-item text-warning' : 'page-item text-warning disabled'">
+          <a class="page-link text-warning" th:href="@{/offers/page/{page}(page=${page - 1}, name=${name}, seller=${seller}, contains=${contains})}" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+
+        <li th:each="pageNumber : ${#numbers.sequence(1, totalPages)}"
+            th:class="${pageNumber == page} ? 'page-item text-warning bg-secondary active' : 'page-item text-warning'">
+          <a class="page-link text-warning" th:href="@{/offers/page/{page}(page=${pageNumber}, name=${name}, seller=${seller}, contains=${contains})}" th:text="${pageNumber}"></a>
+        </li>
+
+        <li th:class="${page < totalPages} ? 'page-item text-warning' : 'page-item text-warning disabled'">
+          <a class="page-link text-warning" th:href="@{/offers/page/{page}(page=${page + 1}, name=${name}, seller=${seller}, contains=${contains})}" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</section>
+<div th:replace="~{fragments/footer}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>

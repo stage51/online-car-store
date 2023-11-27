@@ -1,0 +1,42 @@
+<header class="navbar-expand p-3 mb-3 border-bottom bg-dark sticky-top" data-bs-theme="dark">
+  <div class="container">
+    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+      <a href="/" class="fs-2 fw-bold lh-1 text-body-emphasis d-flex align-items-center me-4 mb-lg-0 text-decoration-none">
+        <p class="mb-1">auto.</p><p class="mb-1 text-warning">buy</p>
+      </a>
+      <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+        <li><a th:href="@{/brands}" class="nav-link px-2 link-body-emphasis">Бренды</a><li>
+        <li><a th:href="@{/models/page/1}" class="nav-link px-2 link-body-emphasis">Модели</a></li>
+        <li><a th:href="@{/offers/page/1}" class="nav-link px-2 link-body-emphasis">Объявления</a></li>
+        <li><a th:href="@{/offers/create}" class="nav-link px-2 link-body-emphasis">Создать объявление</a></li>
+      </ul>
+      <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 column d-flex" role="search" action="/offers/page/1" method="get">
+        <input type="search" class="form-control me-3" placeholder="Поиск" aria-label="Search" name="contains" style="height: 34px">
+        <button type="submit" class="btn btn-outline-warning d-flex p-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path>
+          </svg>
+        </button>
+      </form>
+      <div th:if="${currentUser != null}" class="dropdown text-end">
+        <a th:href="@{/user}" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          <img th:src="@{/images/{url}(url=${currentUser.imageUrl})}" width="32" height="32" class="rounded-circle">
+        </a>
+        <ul class="dropdown-menu text-small" style="">
+          <li><a class="dropdown-item" th:href="@{/offers/page/1(seller=${currentUser.id})}">Мои объявления</a></li>
+          <li><a class="dropdown-item" th:href="@{/user/edit}">Настройки</a></li>
+          <li><a class="dropdown-item" th:href="@{/user}">Профиль</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <form action="/logout" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <li><button type="submit" class="dropdown-item" href="/logout">Выйти</button></li>
+          </form>
+        </ul>
+      </div>
+      <div th:unless="${currentUser != null}" class="text-end">
+        <a th:href="@{/login}"><button type="button" class="btn btn-outline-warning me-2">Вход</button></a>
+        <a th:href="@{/reg}"><button type="button" class="btn btn-warning">Регистрация</button></a>
+      </div>
+    </div>
+  </div>
+</header>
