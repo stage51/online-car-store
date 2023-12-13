@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.List;
@@ -36,19 +37,20 @@ public class BrandController extends BaseController {
         return "brands";
     }
     @GetMapping("/create")
-    public String showCreateBrandForm(Model model) {
-        model.addAttribute("brand", new BrandDTO());
+    public String showCreateBrandForm(Model model, @ModelAttribute BrandDTO brand) {
+        model.addAttribute("brand", brand);
         return "add-brand";
     }
     @PostMapping("/create")
     public String createBrand(@ModelAttribute @Valid BrandDTO brand,
                               BindingResult bindingResult,
+                              RedirectAttributes re,
                               SessionStatus sessionStatus,
                               Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("brand", brand);
-            model.addAttribute("errors", bindingResult.getAllErrors());
-            return "add-brand";
+            re.addFlashAttribute("brand", brand);
+            re.addFlashAttribute("errors", bindingResult.getAllErrors());
+            return "redirect:/brands/create";
         }
         brand.setId(new UUID(10, 10).randomUUID());
         brandService.register(brand);
@@ -66,11 +68,12 @@ public class BrandController extends BaseController {
     public String editBrand(@ModelAttribute @Valid BrandDTO brand,
                             BindingResult bindingResult,
                             SessionStatus sessionStatus,
+                            RedirectAttributes re,
                             Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("brand", brand);
-            model.addAttribute("errors", bindingResult.getAllErrors());
-            return "edit-brand";
+            re.addFlashAttribute("brand", brand);
+            re.addFlashAttribute("errors", bindingResult.getAllErrors());
+            return "redirect:/brands/edit/" + brand.getId();
         }
         brandService.update(brand);
         sessionStatus.setComplete();

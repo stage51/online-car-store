@@ -11,6 +11,8 @@ import com.example.auto.services.ModelService;
 import com.example.auto.utils.ValidationUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +45,7 @@ public class BrandServiceImpl implements BrandService<BrandDTO> {
     public void setModelService(ModelService modelService) {
         this.modelService = modelService;
     }
-
+    @CacheEvict(cacheNames = "brands", allEntries = true)
     @Override
     public BrandDTO register(BrandDTO dto) {
         Brand brand = modelMapper.map(dto, Brand.class);
@@ -59,12 +61,12 @@ public class BrandServiceImpl implements BrandService<BrandDTO> {
             throw new EntityIsExistException("Brand is already exists.");
         }
     }
-
+    @Cacheable("brands")
     @Override
     public Optional<BrandDTO> get(UUID id) {
         return Optional.ofNullable(modelMapper.map(brandRepository.findById(id), BrandDTO.class));
     }
-
+    @CacheEvict(cacheNames = "brands", allEntries = true)
     @Override
     public BrandDTO update(BrandDTO dto) {
          Optional<Brand> brandFromRepository = brandRepository.findById(dto.getId());
@@ -82,6 +84,7 @@ public class BrandServiceImpl implements BrandService<BrandDTO> {
             throw new EntityNotFoundException("Brand", dto.getId(), "update");
         }
     }
+    @CacheEvict(cacheNames = "brands", allEntries = true)
     @Transactional
     @Override
     public void delete(UUID id) {
@@ -96,7 +99,7 @@ public class BrandServiceImpl implements BrandService<BrandDTO> {
             throw new EntityNotFoundException("Brand", id, "delete");
         }
     }
-
+    @Cacheable("brands")
     @Override
     public List<BrandDTO> getAll() {
         return brandRepository.findAll(Sort.by(Sort.Direction.ASC, "name")).stream().map((s) -> modelMapper.map(s, BrandDTO.class)).collect(Collectors.toList());

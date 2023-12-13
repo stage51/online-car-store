@@ -17,6 +17,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.List;
@@ -50,22 +51,21 @@ public class ModelController extends BaseController{
         return "models";
     }
     @GetMapping("/create")
-    public String showCreateModelForm(Model model) {
-        model.addAttribute("model", new ModelDTO());
+    public String showCreateModelForm(Model model, @ModelAttribute ModelDTO modelDTO) {
+        model.addAttribute("model", modelDTO);
         model.addAttribute("categories", Category.values());
         model.addAttribute("brands", brandService.getAll());
         return "add-model";
     }
     @PostMapping("/create")
-    public String createModel(@ModelAttribute @Valid ModelDTO modelDTO, BindingResult bindingResult,
+    public String createModel(@ModelAttribute @Valid ModelDTO modelDTO,
+                              BindingResult bindingResult, RedirectAttributes re,
                               @RequestParam("file") MultipartFile file, SessionStatus sessionStatus, Model model) {
         modelDTO.setId(new UUID(10, 10).randomUUID());
         if (bindingResult.hasErrors()) {
-            model.addAttribute("model", modelDTO);
-            model.addAttribute("categories", Category.values());
-            model.addAttribute("brands", brandService.getAll());
-            model.addAttribute("errors", bindingResult.getAllErrors());
-            return "add-model";
+            re.addFlashAttribute("model", modelDTO);
+            re.addFlashAttribute("errors", bindingResult.getAllErrors());
+            return "redirect:/models/create";
         }
         modelDTO.setImageUrl(imageUtil.saveImage(file));
         modelService.register(modelDTO);
@@ -73,7 +73,7 @@ public class ModelController extends BaseController{
         return "redirect:/models/page/1";
     }
     @GetMapping("/edit/{id}")
-    public String showEditModelForm(@PathVariable UUID id, Model model) {
+    public String showEditModelForm(@PathVariable UUID id, Model model, @ModelAttribute ModelDTO modelDTO) {
         Optional<ModelDTO> modelToEdit = modelService.get(id);
         model.addAttribute("model", modelToEdit.orElse(null));
         model.addAttribute("categories", Category.values());
@@ -81,14 +81,13 @@ public class ModelController extends BaseController{
         return "edit-model";
     }
     @PostMapping("/edit")
-    public String editModel(@ModelAttribute @Valid ModelDTO modelDTO, BindingResult bindingResult,
+    public String editModel(@ModelAttribute @Valid ModelDTO modelDTO,
+                            BindingResult bindingResult, RedirectAttributes re,
                             @RequestParam("file") MultipartFile file, SessionStatus sessionStatus, Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("model", modelDTO);
-            model.addAttribute("categories", Category.values());
-            model.addAttribute("brands", brandService.getAll());
-            model.addAttribute("errors", bindingResult.getAllErrors());
-            return "add-model";
+            re.addFlashAttribute("model", modelDTO);
+            re.addFlashAttribute("errors", bindingResult.getAllErrors());
+            return "redirect:/models/edit/" + modelDTO.getId();
         }
         modelDTO.setImageUrl(imageUtil.saveImage(file));
         modelService.update(modelDTO);

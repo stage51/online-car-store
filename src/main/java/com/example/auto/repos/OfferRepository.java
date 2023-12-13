@@ -5,6 +5,7 @@ import com.example.auto.models.Offer;
 import com.example.auto.models.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -19,4 +20,5 @@ public interface OfferRepository extends JpaRepository<Offer, UUID> {
     Page<Offer> findBySellerIdAndModelName(Pageable pageable, UUID seller, String name);
     Page<Offer> findByModelNameContainsOrDescriptionContainsOrModelBrandNameContains
             (Pageable pageable, String modelNameContains, String descriptionContains, String modelBrandNameContains);
+    List<Offer> findAll(Sort sort);
 }

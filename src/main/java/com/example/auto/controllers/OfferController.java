@@ -19,6 +19,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.List;
@@ -53,8 +54,8 @@ public class OfferController extends BaseController{
         return "offers";
     }
     @GetMapping("/create")
-    public String showCreateOfferForm(Model model) {
-        model.addAttribute("offer", new OfferDTO());
+    public String showCreateOfferForm(Model model, @ModelAttribute OfferDTO offer) {
+        model.addAttribute("offer", offer);
         model.addAttribute("models", modelService.getAll());
         model.addAttribute("engines", Engine.values());
         model.addAttribute("transmissions", Transmission.values());
@@ -62,15 +63,13 @@ public class OfferController extends BaseController{
         return "add-offer";
     }
     @PostMapping("/create")
-    public String createOffer(@ModelAttribute @Valid OfferDTO offer, BindingResult bindingResult, Model model,
+    public String createOffer(@ModelAttribute @Valid OfferDTO offer, BindingResult bindingResult,
+                              Model model, RedirectAttributes re,
                               @RequestParam("file") MultipartFile file, SessionStatus sessionStatus) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("offer", offer);
-            model.addAttribute("models", modelService.getAll());
-            model.addAttribute("engines", Engine.values());
-            model.addAttribute("transmissions", Transmission.values());
-            model.addAttribute("errors", bindingResult.getAllErrors());
-            return "add-offer";
+            re.addFlashAttribute("offer", offer);
+            re.addFlashAttribute("errors", bindingResult.getAllErrors());
+            return "redirect:/offers/create";
         }
         offer.setId(new UUID(10, 10).randomUUID());
         offer.setImageUrl(imageUtil.saveImage(file));
@@ -81,7 +80,7 @@ public class OfferController extends BaseController{
         return "redirect:/offers/page/1?seller=" + userDTO.getId();
     }
     @GetMapping("/edit/{id}")
-    public String showEditOfferForm(@PathVariable UUID id, Model model) {
+    public String showEditOfferForm(@PathVariable UUID id, Model model, @ModelAttribute OfferDTO offer) {
         Optional<OfferDTO> offerToEdit = offerService.get(id);
         model.addAttribute("offer", offerToEdit.orElse(null));
         model.addAttribute("models", modelService.getAll());
@@ -91,15 +90,12 @@ public class OfferController extends BaseController{
     }
     @PostMapping("/edit")
     public String editOffer(@ModelAttribute @Valid OfferDTO offer,
-                            BindingResult bindingResult, Model model,
+                            BindingResult bindingResult, Model model, RedirectAttributes re,
                             @RequestParam("file") MultipartFile file, SessionStatus sessionStatus) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("offer", offer);
-            model.addAttribute("models", modelService.getAll());
-            model.addAttribute("engines", Engine.values());
-            model.addAttribute("transmissions", Transmission.values());
-            model.addAttribute("errors", bindingResult.getAllErrors());
-            return "edit-offer";
+            re.addFlashAttribute("offer", offer);
+            re.addFlashAttribute("errors", bindingResult.getAllErrors());
+            return "redirect:/offers/edit/" + offer.getId();
         }
         UserDTO userDTO = (UserDTO) model.getAttribute("currentUser");
         offer.setImageUrl(imageUtil.saveImage(file));

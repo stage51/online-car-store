@@ -2,13 +2,17 @@ package com.example.auto.models;
 
 import com.example.auto.models.base.ExtendedBaseEntity;
 import com.example.auto.models.enums.Category;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name = "models")
+
 public class Model extends ExtendedBaseEntity {
     protected Model() {
     }
@@ -18,7 +22,7 @@ public class Model extends ExtendedBaseEntity {
     private int startYear;
     private int endYear;
     private Brand brand;
-    private Set<Offer> offers;
+    private List<Offer> offers;
 
     public String getName() {
         return name;
@@ -59,7 +63,7 @@ public class Model extends ExtendedBaseEntity {
     public void setEndYear(int endYear) {
         this.endYear = endYear;
     }
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "brand_id")
     public Brand getBrand() {
         return brand;
@@ -70,11 +74,11 @@ public class Model extends ExtendedBaseEntity {
     }
     @OneToMany(fetch = FetchType.LAZY,
             cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.REFRESH}, mappedBy = "model")
-    public Set<Offer> getOffers() {
+    public List<Offer> getOffers() {
         return offers;
     }
 
-    public void setOffers(Set<Offer> offers) {
+    public void setOffers(List<Offer> offers) {
         this.offers = offers;
     }
 }

@@ -5,8 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.UUID;
-public class BaseDTO {
+public class BaseDTO{
     private UUID id;
 
     public UUID getId() {

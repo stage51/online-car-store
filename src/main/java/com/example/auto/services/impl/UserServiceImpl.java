@@ -12,6 +12,9 @@ import com.example.auto.utils.ValidationUtil;
 import jakarta.validation.ConstraintViolation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +26,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@EnableCaching
 public class UserServiceImpl implements UserService<UserDTO> {
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
@@ -45,6 +49,7 @@ public class UserServiceImpl implements UserService<UserDTO> {
     }
 
     @Override
+    @CacheEvict(cacheNames = "users", allEntries = true)
     public UserDTO register(UserDTO dto) {
         User user = modelMapper.map(dto, User.class);
         if (!this.validationUtil.isValid(dto)) {
@@ -65,15 +70,18 @@ public class UserServiceImpl implements UserService<UserDTO> {
 
 
     @Override
+    @Cacheable("users")
     public Optional<UserDTO> get(UUID id) {
         return Optional.ofNullable(modelMapper.map(userRepository.findById(id), UserDTO.class));
     }
     @Override
+    @Cacheable("users")
     public Optional<UserDTO> get(String username) {
         return Optional.ofNullable(modelMapper.map(userRepository.findByUsername(username), UserDTO.class));
     }
 
     @Override
+    @CacheEvict(cacheNames = "users", allEntries = true)
     public UserDTO update(UserDTO dto) {
         Optional<User> userFromRepository = userRepository.findById(dto.getId());
         if (!this.validationUtil.isValid(dto)) {
@@ -93,6 +101,8 @@ public class UserServiceImpl implements UserService<UserDTO> {
     }
 
     @Override
+    @CacheEvict(cacheNames = "users", allEntries = true)
+
     public void delete(UUID id) {
         if (userRepository.findById(id).isPresent()){
             userRepository.deleteById(id);
@@ -102,15 +112,18 @@ public class UserServiceImpl implements UserService<UserDTO> {
     }
 
     @Override
+    @Cacheable("users")
     public List<UserDTO> getAll() {
         return userRepository.findAll().stream().map((s) -> modelMapper.map(s, UserDTO.class)).collect(Collectors.toList());
     }
     @Override
+    @Cacheable("users")
     public Optional<UserDTO> getByPrincipal(Principal principal) {
         return Optional.ofNullable(modelMapper.map(userRepository.findByUsername(principal.getName()), UserDTO.class));
     }
 
     @Override
+    @CacheEvict(cacheNames = "users", allEntries = true)
     public void ban(UserDTO dto) {
         Optional<User> userFromRepository = userRepository.findById(dto.getId());
         if (userFromRepository.isPresent()){

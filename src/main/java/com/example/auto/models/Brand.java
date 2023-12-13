@@ -1,21 +1,24 @@
 package com.example.auto.models;
 
 import com.example.auto.models.base.ExtendedBaseEntity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name = "brands")
+
 public class Brand extends ExtendedBaseEntity {
     protected Brand() {
     }
     private String name;
     private Date created;
     private Date modified;
-    private Set<Model> models;
+    private List<Model> models;
 
     public String getName() {
         return name;
@@ -46,11 +49,11 @@ public class Brand extends ExtendedBaseEntity {
     }
     @OneToMany(fetch = FetchType.LAZY,
             cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.REFRESH}, mappedBy = "brand")
-    public Set<Model> getModels() {
+    public List<Model> getModels() {
         return models;
     }
 
-    public void setModels(Set<Model> models) {
+    public void setModels(List<Model> models) {
         this.models = models;
     }
 }

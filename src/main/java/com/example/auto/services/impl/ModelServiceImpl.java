@@ -14,6 +14,9 @@ import io.micrometer.common.util.StringUtils;
 import jakarta.validation.ConstraintViolation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -27,6 +30,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@EnableCaching
 public class ModelServiceImpl implements ModelService<ModelDTO> {
     private final int PAGE_SIZE = 12;
     private ModelRepository modelRepository;
@@ -48,7 +52,7 @@ public class ModelServiceImpl implements ModelService<ModelDTO> {
     public void setOfferService(OfferService offerService) {
         this.offerService = offerService;
     }
-
+    @CacheEvict(cacheNames = "brands", allEntries = true)
     @Override
     public ModelDTO register(ModelDTO dto) {
         Model model = modelMapper.map(dto, Model.class);
@@ -64,12 +68,12 @@ public class ModelServiceImpl implements ModelService<ModelDTO> {
             throw new EntityIsExistException("Model is already exists.");
         }
     }
-
+    @Cacheable("brands")
     @Override
     public Optional<ModelDTO> get(UUID id) {
         return Optional.ofNullable(modelMapper.map(modelRepository.findById(id), ModelDTO.class));
     }
-
+    @CacheEvict(cacheNames = "brands", allEntries = true)
     @Override
     public ModelDTO update(ModelDTO dto) {
         Optional<Model> modelFromRepository = modelRepository.findById(dto.getId());
@@ -87,6 +91,7 @@ public class ModelServiceImpl implements ModelService<ModelDTO> {
         }
     }
     @Transactional
+    @CacheEvict(cacheNames = "brands", allEntries = true)
     @Override
     public void delete(UUID id) {
         Model model = modelRepository.findById(id).orElse(null);
@@ -100,26 +105,26 @@ public class ModelServiceImpl implements ModelService<ModelDTO> {
             throw new EntityNotFoundException("Model", id, "delete");
         }
     }
+    @Cacheable("brands")
     @Override
     public List<ModelDTO> getAll() {
         return modelRepository.findAll(Sort.by(Sort.Direction.ASC, "brand.name", "name")).stream().map((s) -> modelMapper.map(s, ModelDTO.class)).collect(Collectors.toList());
     }
-
+    @Cacheable("brands")
     @Override
     public List<ModelDTO> findByBrand(Brand brand) {
         return modelRepository.findByBrand(brand).stream().map((s) -> modelMapper.map(s, ModelDTO.class)).collect(Collectors.toList());
     }
-
+    @Cacheable("brands")
     public Page<ModelDTO> getPage(Integer pageNumber, Integer pageSize) {
         return modelRepository.findAll(PageRequest.of(pageNumber, pageSize))
                 .map(s -> modelMapper.map(s, ModelDTO.class));
     }
-
+    @Cacheable("brands")
     public Page<ModelDTO> getPage(Integer pageNumber) {
         return modelRepository.findAll(PageRequest.of(pageNumber, PAGE_SIZE))
                 .map(s -> modelMapper.map(s, ModelDTO.class));
     }
-
     public Page<ModelDTO> getPageByBrandName(Integer pageNumber, String name) {
         if(StringUtils.isBlank(name)){
             return modelRepository.findAll(PageRequest.of(pageNumber, PAGE_SIZE))

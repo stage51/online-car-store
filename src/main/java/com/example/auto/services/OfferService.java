@@ -15,4 +15,5 @@ public interface OfferService<OfferDTO> extends AbstractService<OfferDTO>{
     Page<OfferDTO> getPageBySeller(Integer pageNumber, UUID seller);
     Page<OfferDTO> getPageBySellerAndModelName(Integer pageNumber, UUID seller, String name);
     Page<OfferDTO> search(Integer pageNumber, UUID seller, String name, String contains);
+    List<OfferDTO> latestOffers();
 }

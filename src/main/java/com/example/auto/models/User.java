@@ -1,8 +1,12 @@
 package com.example.auto.models;
 
 import com.example.auto.models.base.ExtendedBaseEntity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import org.springframework.data.redis.core.RedisHash;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -17,7 +21,7 @@ public class User extends ExtendedBaseEntity{
     private boolean banned;
     private UserRole userRole;
     private String imageUrl;
-    private Set<Offer> offers;
+    private List<Offer> offers;
     @Column(nullable = false)
     public String getUsername() {
         return username;
@@ -75,11 +79,11 @@ public class User extends ExtendedBaseEntity{
         this.imageUrl = imageUrl;
     }
     @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE, CascadeType.REFRESH}, mappedBy = "seller")
-    public Set<Offer> getOffers() {
+    public List<Offer> getOffers() {
         return offers;
     }
 
-    public void setOffers(Set<Offer> offers) {
+    public void setOffers(List<Offer> offers) {
         this.offers = offers;
     }
 }

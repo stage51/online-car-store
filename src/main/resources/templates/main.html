@@ -38,6 +38,41 @@
     </div>
   </div>
 </section>
+<section>
+  <div class="container">
+    <div class="container d-flex justify-content-between align-items-center py-4">
+      <h1 class="text-body-emphasis">Последние объявления</h1>
+    </div>
+    <div th:if="${offers.size() != 0}" class="row gap-3 justify-content-center d-flex">
+      <div th:each="offer : ${offers}" class="card" style="width: 18rem;">
+        <img th:src="@{/images/{url}(url=${offer.imageUrl})}" class="card-img-top w-100 h-100" alt="..." style="object-fit: cover;">
+        <div class="card-body">
+          <h5 th:text="${offer.model.brand.name} + ' ' + ${offer.model.name}" class="card-title">title</h5>
+          <p th:text="${offer.description}" class="card-text">description</p>
+          <p th:text="${offer.price} + ' RUB'" class="card-text fs-3 text-warning">price</p>
+          <div class="row d-flex justify-content-center">
+            <a th:href="@{/offers/{id}(id=${offer.id})}" class="btn btn-warning col-5">Подробно</a>
+            <a th:if="${offer.seller.id == currentUser.id or currentUser.userRole.role.ordinal() == 1}" th:href="@{/offers/edit/{id}(id=${offer.id})}" class="btn btn-outline-warning col-5 ms-2">Изменить</a>
+          </div>
+          <small class="text-body-secondary d-flex mt-3 justify-content-center">
+            <p class="mb-0 me-1">Продавец: </p>
+            <a th:href="@{/user/{id}(id=${offer.seller.id})}" th:text="${offer.seller.username}" class="text-warning">seller</a>
+          </small>
+        </div>
+      </div>
+    </div>
+    <div th:unless="${offers.size() != 0}" class="my-5">
+      <div class="p-5 text-center">
+        <div class="container py-5">
+          <h1 class="text-body-emphasis text-dark d-flex justify-content-center"><p class="text-warning md-0 me-2">Упс...</p>Здесь ничего нет!</h1>
+          <p class="col-lg-8 mx-auto lead">
+            На этой странице нет объявлений.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 <div th:replace="~{fragments/footer}"></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </body>

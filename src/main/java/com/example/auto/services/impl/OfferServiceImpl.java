@@ -14,20 +14,23 @@ import io.micrometer.common.util.StringUtils;
 import jakarta.validation.ConstraintViolation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@EnableCaching
 public class OfferServiceImpl implements OfferService<OfferDTO> {
     private final int PAGE_SIZE = 12;
+    private final int LATEST_SIZE = 4;
     private OfferRepository offerRepository;
 
     private ModelMapper modelMapper;
@@ -42,7 +45,7 @@ public class OfferServiceImpl implements OfferService<OfferDTO> {
     public void setOfferRepository(OfferRepository offerRepository) {
         this.offerRepository = offerRepository;
     }
-
+    @CacheEvict(cacheNames = "offers", allEntries = true)
     @Override
     public OfferDTO register(OfferDTO dto) {
         Offer offer = modelMapper.map(dto, Offer.class);
@@ -58,12 +61,12 @@ public class OfferServiceImpl implements OfferService<OfferDTO> {
             throw new EntityIsExistException("Offer is already exists.");
         }
     }
-
+    @Cacheable("offers")
     @Override
     public Optional<OfferDTO> get(UUID id) {
         return Optional.ofNullable(modelMapper.map(offerRepository.findById(id), OfferDTO.class));
     }
-
+    @CacheEvict(cacheNames = "offers", allEntries = true)
     @Override
     public OfferDTO update(OfferDTO dto) {
         Optional<Offer> offerFromRepository = offerRepository.findById(dto.getId());
@@ -80,7 +83,7 @@ public class OfferServiceImpl implements OfferService<OfferDTO> {
             throw new EntityNotFoundException("Offer", dto.getId(), "update");
         }
     }
-
+    @CacheEvict(cacheNames = "offers", allEntries = true)
     @Override
     public void delete(UUID id) {
         if (offerRepository.findById(id).isPresent()){
@@ -89,29 +92,28 @@ public class OfferServiceImpl implements OfferService<OfferDTO> {
             throw new EntityNotFoundException("Offer", id, "delete");
         }
     }
-
+    @CacheEvict(cacheNames = "offers", allEntries = true)
     @Override
     public List<OfferDTO> getAll() {
         return offerRepository.findAll().stream().map((s) -> modelMapper.map(s, OfferDTO.class)).collect(Collectors.toList());
     }
-
+    @Cacheable("offers")
     @Override
     public List<OfferDTO> findByModel(Model model) {
         return offerRepository.findByModel(model).stream().map((s) -> modelMapper.map(s, OfferDTO.class)).collect(Collectors.toList());
     }
-
+    @Cacheable("offers")
     @Override
     public Page<OfferDTO> getPage(Integer pageNumber, Integer pageSize) {
         return offerRepository.findAll(PageRequest.of(pageNumber, pageSize))
                 .map((s) -> modelMapper.map(s, OfferDTO.class));
     }
-
+    @Cacheable("offers")
     @Override
     public Page<OfferDTO> getPage(Integer pageNumber) {
         return offerRepository.findAll(PageRequest.of(pageNumber, PAGE_SIZE))
                 .map((s) -> modelMapper.map(s, OfferDTO.class));
     }
-
     @Override
     public Page<OfferDTO> getPageByModelName(Integer pageNumber, String name) {
         if (StringUtils.isBlank(name)){
@@ -120,7 +122,6 @@ public class OfferServiceImpl implements OfferService<OfferDTO> {
         return offerRepository.findByModelName(PageRequest.of(pageNumber, PAGE_SIZE), name)
                 .map((s) -> modelMapper.map(s, OfferDTO.class));
     }
-
     @Override
     public Page<OfferDTO> getPageBySeller(Integer pageNumber, UUID seller) {
         if (seller == null){
@@ -143,7 +144,6 @@ public class OfferServiceImpl implements OfferService<OfferDTO> {
                     .map((s) -> modelMapper.map(s, OfferDTO.class));
         }
     }
-
     @Override
     public Page<OfferDTO> search(Integer pageNumber, UUID seller, String name, String contains) {
         if ((seller != null) || (StringUtils.isNotBlank(name))){
@@ -157,5 +157,11 @@ public class OfferServiceImpl implements OfferService<OfferDTO> {
         else{
             return getPage(pageNumber);
         }
+    }
+    @Cacheable("offers")
+    @Override
+    public List<OfferDTO> latestOffers() {
+        return offerRepository.findAll(PageRequest.of(0, 4, Sort.by(Sort.Direction.DESC, "created")))
+                .map((s) -> modelMapper.map(s, OfferDTO.class)).stream().collect(Collectors.toList());
     }
 }

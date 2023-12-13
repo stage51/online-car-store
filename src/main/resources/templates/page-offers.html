@@ -21,7 +21,7 @@
         <div class="card-body">
           <h5 th:text="${offer.model.brand.name} + ' ' + ${offer.model.name}" class="card-title">title</h5>
           <p th:text="${offer.description}" class="card-text">description</p>
-          <p th:text="${offer.price} + ' RUB'" class="card-text fs-3 text-danger">price</p>
+          <p th:text="${offer.price} + ' RUB'" class="card-text fs-3 text-warning">price</p>
           <div class="row d-flex justify-content-center">
             <a th:href="@{/offers/{id}(id=${offer.id})}" class="btn btn-warning col-5">Подробно</a>
             <a th:if="${offer.seller.id == currentUser.id or currentUser.userRole.role.ordinal() == 1}" th:href="@{/offers/edit/{id}(id=${offer.id})}" class="btn btn-outline-warning col-5 ms-2">Изменить</a>

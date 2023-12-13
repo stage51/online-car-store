@@ -1,16 +1,19 @@
 package com.example.auto.dtos;
 
 import com.example.auto.models.UserRole;
-import jakarta.validation.constraints.AssertFalse;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
+import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 @Getter
 @Setter
+
 public class UserDTO extends BaseDTO{
     private UUID id;
     private String username;
@@ -20,7 +23,7 @@ public class UserDTO extends BaseDTO{
     private boolean banned;
     private UserRole userRole;
     private String imageUrl;
-    private Set<OfferDTO> offers;
+
     @NotNull
     @NotEmpty
     @Length(min = 2, message = "Username length must be more than two characters!")

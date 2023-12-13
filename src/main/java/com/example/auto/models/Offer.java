@@ -3,6 +3,7 @@ package com.example.auto.models;
 import com.example.auto.models.base.ExtendedBaseEntity;
 import com.example.auto.models.enums.Engine;
 import com.example.auto.models.enums.Transmission;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -10,6 +11,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "offers")
+
 public class Offer extends ExtendedBaseEntity {
     protected Offer() {
     }
@@ -78,8 +80,9 @@ public class Offer extends ExtendedBaseEntity {
     public void setYear(int year) {
         this.year = year;
     }
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "model_id")
+
     public Model getModel() {
         return model;
     }
@@ -87,7 +90,7 @@ public class Offer extends ExtendedBaseEntity {
     public void setModel(Model model) {
         this.model = model;
     }
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "seller_id")
     public User getSeller() {
         return seller;
