@@ -1,7 +1,9 @@
 package com.example.auto.controllers;
 
+import ch.qos.logback.classic.Logger;
 import com.example.auto.dtos.UserDTO;
 import com.example.auto.services.UserService;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -14,6 +16,7 @@ public class BaseController {
     @ModelAttribute("currentUser")
     public UserDTO currentUser(Principal principal){
         if (principal == null){
+
             return null;
         }
         return (UserDTO) userService.getByPrincipal(principal).orElse(null);

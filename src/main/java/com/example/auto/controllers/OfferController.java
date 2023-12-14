@@ -11,6 +11,9 @@ import com.example.auto.services.UserService;
 import com.example.auto.utils.ImageUtil;
 import io.micrometer.common.util.StringUtils;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -29,6 +32,7 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/offers")
 public class OfferController extends BaseController{
+    protected static final Logger log = LoggerFactory.getLogger(OfferController.class);
 
     private OfferService offerService;
 
@@ -49,12 +53,14 @@ public class OfferController extends BaseController{
     public void setImageUtil(ImageUtil imageUtil){this.imageUtil = imageUtil;}
     @GetMapping
     public String viewAllOffers(Model model) {
+        log.info("Getting all offers", Level.INFO);
         List<OfferDTO> offers = offerService.getAll();
         model.addAttribute("offers", offers);
         return "offers";
     }
     @GetMapping("/create")
     public String showCreateOfferForm(Model model, @ModelAttribute OfferDTO offer) {
+        log.info("Open form for new offer", Level.INFO);
         model.addAttribute("offer", offer);
         model.addAttribute("models", modelService.getAll());
         model.addAttribute("engines", Engine.values());
@@ -67,6 +73,7 @@ public class OfferController extends BaseController{
                               Model model, RedirectAttributes re,
                               @RequestParam("file") MultipartFile file, SessionStatus sessionStatus) {
         if (bindingResult.hasErrors()) {
+            log.info("Offer form has errors", Level.ERROR);
             re.addFlashAttribute("offer", offer);
             re.addFlashAttribute("errors", bindingResult.getAllErrors());
             return "redirect:/offers/create";
@@ -76,6 +83,7 @@ public class OfferController extends BaseController{
         UserDTO userDTO = (UserDTO) model.getAttribute("currentUser");
         offer.setSeller(userDTO);
         offerService.register(offer);
+        log.info("Created new offer", Level.INFO);
         sessionStatus.setComplete();
         return "redirect:/offers/page/1?seller=" + userDTO.getId();
     }
@@ -86,6 +94,7 @@ public class OfferController extends BaseController{
         model.addAttribute("models", modelService.getAll());
         model.addAttribute("engines", Engine.values());
         model.addAttribute("transmissions", Transmission.values());
+        log.info("Open form for update offer " + id, Level.INFO);
         return "edit-offer";
     }
     @PostMapping("/edit")
@@ -93,6 +102,7 @@ public class OfferController extends BaseController{
                             BindingResult bindingResult, Model model, RedirectAttributes re,
                             @RequestParam("file") MultipartFile file, SessionStatus sessionStatus) {
         if (bindingResult.hasErrors()) {
+            log.info("Offer form has errors", Level.ERROR);
             re.addFlashAttribute("offer", offer);
             re.addFlashAttribute("errors", bindingResult.getAllErrors());
             return "redirect:/offers/edit/" + offer.getId();
@@ -101,11 +111,13 @@ public class OfferController extends BaseController{
         offer.setImageUrl(imageUtil.saveImage(file));
         offer.setSeller(userDTO);
         offerService.update(offer);
+        log.info("Updating offer", Level.INFO);
         sessionStatus.setComplete();
         return "redirect:/offers/" + userDTO.getId();
     }
     @GetMapping("/delete/{id}")
     public String deleteOffer(@PathVariable UUID id) {
+        log.info("Deleting offer " + id, Level.INFO);
         offerService.delete(id);
         return "redirect:/offers/page/1";
     }
@@ -121,12 +133,14 @@ public class OfferController extends BaseController{
         model.addAttribute("contains", contains);
         model.addAttribute("offers", pageList);
         model.addAttribute("totalPages", pageList.getTotalPages());
+        log.info("Getting offer page " + page, Level.INFO);
         return "page-offers";
     }
     @GetMapping("/{id}")
     public String showOffer(@PathVariable UUID id, Model model) {
         Optional<OfferDTO> offer = offerService.get(id);
         model.addAttribute("offer", offer.orElse(null));
+        log.info("Getting offer " + id, Level.INFO);
         return "offer-info";
     }
 }

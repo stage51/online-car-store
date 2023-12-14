@@ -9,6 +9,9 @@ import com.example.auto.services.UserService;
 import com.example.auto.utils.ImageUtil;
 import io.micrometer.common.util.StringUtils;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -27,6 +30,7 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/models")
 public class ModelController extends BaseController{
+    protected static final Logger log = LoggerFactory.getLogger(ModelController.class);
     private ModelService modelService;
     private BrandService brandService;
     private ImageUtil imageUtil;
@@ -46,12 +50,14 @@ public class ModelController extends BaseController{
 
     @GetMapping
     public String viewAllModels(Model model) {
+        log.info("Getting all models", Level.INFO);
         List<ModelDTO> models = modelService.getAll();
         model.addAttribute("models", models);
         return "models";
     }
     @GetMapping("/create")
     public String showCreateModelForm(Model model, @ModelAttribute ModelDTO modelDTO) {
+        log.info("Open form for new model", Level.INFO);
         model.addAttribute("model", modelDTO);
         model.addAttribute("categories", Category.values());
         model.addAttribute("brands", brandService.getAll());
@@ -63,12 +69,14 @@ public class ModelController extends BaseController{
                               @RequestParam("file") MultipartFile file, SessionStatus sessionStatus, Model model) {
         modelDTO.setId(new UUID(10, 10).randomUUID());
         if (bindingResult.hasErrors()) {
+            log.info("Model form has errors", Level.ERROR);
             re.addFlashAttribute("model", modelDTO);
             re.addFlashAttribute("errors", bindingResult.getAllErrors());
             return "redirect:/models/create";
         }
         modelDTO.setImageUrl(imageUtil.saveImage(file));
         modelService.register(modelDTO);
+        log.info("Created new model", Level.INFO);
         sessionStatus.setComplete();
         return "redirect:/models/page/1";
     }
@@ -78,6 +86,7 @@ public class ModelController extends BaseController{
         model.addAttribute("model", modelToEdit.orElse(null));
         model.addAttribute("categories", Category.values());
         model.addAttribute("brands", brandService.getAll());
+        log.info("Open form for update model " + id, Level.INFO);
         return "edit-model";
     }
     @PostMapping("/edit")
@@ -85,17 +94,20 @@ public class ModelController extends BaseController{
                             BindingResult bindingResult, RedirectAttributes re,
                             @RequestParam("file") MultipartFile file, SessionStatus sessionStatus, Model model) {
         if (bindingResult.hasErrors()) {
+            log.info("Model form has errors", Level.ERROR);
             re.addFlashAttribute("model", modelDTO);
             re.addFlashAttribute("errors", bindingResult.getAllErrors());
             return "redirect:/models/edit/" + modelDTO.getId();
         }
         modelDTO.setImageUrl(imageUtil.saveImage(file));
         modelService.update(modelDTO);
+        log.info("Updating model", Level.INFO);
         sessionStatus.setComplete();
         return "redirect:/models/page/1";
     }
     @GetMapping("/delete/{id}")
     public String deleteModel(@PathVariable UUID id) {
+        log.info("Deleting model " + id, Level.INFO);
         modelService.delete(id);
         return "redirect:/models";
     }
@@ -105,6 +117,7 @@ public class ModelController extends BaseController{
         Page<ModelDTO> pageList = modelService.getPageByBrandName(page - 1, name);
         model.addAttribute("models", pageList);
         model.addAttribute("totalPages", pageList.getTotalPages());
+        log.info("Getting model page " + page, Level.INFO);
         return "page-models";
     }
 }
